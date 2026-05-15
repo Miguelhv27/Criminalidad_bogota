@@ -134,7 +134,7 @@ function LocalidadDrawer({ feature, onClose }) {
             color: 'var(--green-300)', letterSpacing: '0.14em',
             textTransform: 'uppercase', marginBottom: 8,
           }}>
-            Detalle — Localidad
+            Perfil de Seguridad — Localidad
           </div>
           <div style={{ fontFamily: 'Syne, sans-serif', fontSize: '1.5rem', fontWeight: 700, color: 'var(--text)', marginBottom: 12 }}>
             {name}
@@ -192,7 +192,7 @@ function LocalidadDrawer({ feature, onClose }) {
             color: 'var(--green-300)', letterSpacing: '0.12em',
             textTransform: 'uppercase', marginBottom: 8,
           }}>
-            Clasificación espacial
+            Zona y nivel de riesgo
           </div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
             <div style={{ fontSize: '0.78rem', color: 'var(--text-soft)' }}>
@@ -367,13 +367,13 @@ export default function GraficasDelitos({ graficos, geojson }) {
       )}
 
       <SectionHeader
-        title="Analisis de Delitos"
-        sub="Tasas estandarizadas por 100.000 habitantes — comparacion entre localidades"
+        title="Tipos de Delito en Bogotá"
+        sub="Tasas por cada 100.000 habitantes — comparación entre localidades según tipo de delito"
       />
 
       {/* Explorador principal */}
       <div className="chart-box" style={{ marginBottom: '1.2rem' }}>
-        <h3>Explorador por tipo de delito — clic en barra para ver detalle</h3>
+        <h3>Explorador por tipo de delito — clic en una barra para ver el perfil de esa localidad</h3>
         <DelitoSelector selected={delitoActivo} onChange={setDelitoActivo} />
 
         {moranActivo && (
@@ -432,7 +432,7 @@ export default function GraficasDelitos({ graficos, geojson }) {
           fontSize: '0.7rem', color: 'var(--text-muted)',
           marginTop: 8, fontFamily: 'DM Mono, monospace',
         }}>
-          Haz clic en cualquier barra para ver el desglose completo de esa localidad
+          Haz clic en cualquier barra para ver el perfil completo de delitos de esa localidad
         </div>
       </div>
 
@@ -440,7 +440,7 @@ export default function GraficasDelitos({ graficos, geojson }) {
 
       {/* Area chart */}
       <div className="chart-box" style={{ marginBottom: '1.2rem' }}>
-        <h3>Comparacion de todos los delitos — Top 10 localidades</h3>
+        <h3>Comparación de todos los delitos — Top 10 localidades más afectadas</h3>
         <ResponsiveContainer width="100%" height={320}>
           <AreaChart data={dataArea} margin={{ top: 8, right: 16, left: 0, bottom: 90 }}>
             <defs>
@@ -482,7 +482,7 @@ export default function GraficasDelitos({ graficos, geojson }) {
       {/* Indice compuesto + Radar */}
       <div className="two-col">
         <div className="chart-box">
-          <h3>Indice compuesto de criminalidad</h3>
+          <h3>Índice compuesto de criminalidad — ranking por localidad</h3>
           <ResponsiveContainer width="100%" height={320}>
             <BarChart
               data={[...dataLocalidades].sort((a, b) => b.INDICE_CRIMEN - a.INDICE_CRIMEN)}
@@ -531,7 +531,7 @@ export default function GraficasDelitos({ graficos, geojson }) {
 
         {/* Radar */}
         <div className="chart-box">
-          <h3>Perfil multidimensional por localidad</h3>
+          <h3>Perfil de criminalidad por localidad</h3>
           <ResponsiveContainer width="100%" height={320}>
             <RadarChart data={radarData} margin={{ top: 10, right: 40, bottom: 10, left: 40 }}>
               <PolarGrid stroke="rgba(34,197,94,0.1)" />
@@ -567,7 +567,7 @@ export default function GraficasDelitos({ graficos, geojson }) {
         color: 'var(--green-300)', textTransform: 'uppercase',
         letterSpacing: '0.14em', marginBottom: '1rem', opacity: 0.8,
       }}>
-        Autocorrelacion espacial por tipo de delito (I de Moran)
+        Concentración espacial por tipo de delito
       </div>
       <MoranCarousel items={graficos.moran_por_delito} />
     </div>

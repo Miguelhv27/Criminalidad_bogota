@@ -378,148 +378,148 @@ export default function ClusteringML({ graficos, metricas }) {
   /* KPI cards con modales */
   const kpiCards = [
     {
-      label: 'K optimo K-means',
+      label: 'Perfiles de zona',
       value: metricas.kmeans_k,
-      sub: `Silueta: ${metricas.kmeans_silhouette.toFixed(4)}`,
+      sub: `Tipos de zonas identificadas`,
       type: 'accent',
       modal: {
-        categoria: 'Clustering no supervisado',
-        titulo: 'K optimo seleccionado',
-        valor: `k = ${metricas.kmeans_k}`,
+        categoria: 'Análisis de patrones',
+        titulo: 'Perfiles de zonas de riesgo',
+        valor: `${metricas.kmeans_k} tipos de zonas`,
         color: 'var(--green-300)',
-        descripcion: `El algoritmo K-means evaluo multiples valores de k y selecciono ${metricas.kmeans_k} como el numero optimo de clusters usando el coeficiente de silueta como criterio de calidad.`,
+        descripcion: `El análisis identificó ${metricas.kmeans_k} perfiles distintos de zonas según su comportamiento criminal. Cada grupo requiere estrategias de seguridad diferentes.`,
         detalles: [
-          { label: 'Coeficiente de silueta', valor: metricas.kmeans_silhouette.toFixed(4) },
-          { label: 'Rango evaluado', valor: `k = 2 a ${graficos.silueta_kmeans.length + 1}` },
-          { label: 'Metodo de seleccion', valor: 'Max. silueta' },
+          { label: 'Coeficiente de calidad', valor: metricas.kmeans_silhouette.toFixed(4) },
+          { label: 'Zonas evaluadas', valor: `${metricas.n_localidades} localidades` },
+          { label: 'Método', valor: 'Análisis de patrones' },
         ],
-        interpretacion: `Un coeficiente de silueta de ${metricas.kmeans_silhouette.toFixed(4)} indica ${metricas.kmeans_silhouette > 0.5 ? 'una separacion solida entre clusters' : 'clusters con cierta superposicion, aceptable dado el contexto espacial'}.`,
+        interpretacion: `Un coeficiente de ${metricas.kmeans_silhouette.toFixed(4)} indica ${metricas.kmeans_silhouette > 0.5 ? 'una separación clara entre los tipos de zonas' : 'zonas con cierta superposición, pero diferenciadas'}.`,
       },
     },
     {
-      label: 'Accuracy LOO tradicional',
+      label: 'Precisión del análisis',
       value: `${(metricas.rf_accuracy_loo * 100).toFixed(1)}%`,
-      sub: 'Leave-One-Out',
+      sub: 'Confiabilidad general',
       type: 'ok',
       modal: {
-        categoria: 'Validacion cruzada',
-        titulo: 'Accuracy LOO Tradicional',
+        categoria: 'Validación',
+        titulo: 'Precisión del modelo',
         valor: `${(metricas.rf_accuracy_loo * 100).toFixed(1)}%`,
         color: 'var(--green-400)',
-        descripcion: 'La validacion Leave-One-Out (LOO) tradicional entrena el modelo con todas las localidades menos una y la predice. Repite este proceso para cada localidad.',
+        descripcion: 'El modelo de clasificación de riesgo alcanza esta precisión al identificar zonas de alto, medio y bajo riesgo, validado con técnicas rigurosas.',
         detalles: [
-          { label: 'Accuracy', valor: `${(metricas.rf_accuracy_loo * 100).toFixed(1)}%` },
-          { label: 'F1 Macro', valor: metricas.rf_f1_macro.toFixed(4) },
-          { label: 'Metodo', valor: 'Random Forest' },
+          { label: 'Precisión', valor: `${(metricas.rf_accuracy_loo * 100).toFixed(1)}%` },
+          { label: 'Balance entre clases', valor: metricas.rf_f1_macro.toFixed(4) },
+          { label: 'Método', valor: 'Clasificación inteligente' },
         ],
-        interpretacion: 'Este valor puede ser optimista si las localidades vecinas comparten patrones similares (autocorrelacion espacial). Compare con el LOO espacial para evaluar robustez.',
+        interpretacion: 'Esta precisión permite confiar en las zonas de riesgo identificadas para la toma de decisiones en seguridad.',
       },
     },
     {
-      label: 'Accuracy LOO espacial',
+      label: 'Validación espacial',
       value: `${(metricas.rf_accuracy_spatial * 100).toFixed(1)}%`,
-      sub: 'Spatial CV — Queen',
+      sub: 'Considerando vecindad',
       type: 'ok',
       modal: {
-        categoria: 'Validacion cruzada espacial',
-        titulo: 'Accuracy LOO Espacial',
+        categoria: 'Validación geográfica',
+        titulo: 'Precisión considerando zonas vecinas',
         valor: `${(metricas.rf_accuracy_spatial * 100).toFixed(1)}%`,
         color: 'var(--blue-light)',
-        descripcion: 'La validacion LOO espacial excluye ademas los vecinos Queen de la localidad de prueba durante el entrenamiento, evitando la fuga de informacion espacial.',
+        descripcion: 'Esta validación excluye las zonas vecinas durante el entrenamiento, asegurando que el modelo no se beneficie de la proximidad geográfica.',
         detalles: [
-          { label: 'Accuracy espacial', valor: `${(metricas.rf_accuracy_spatial * 100).toFixed(1)}%` },
-          { label: 'Diferencia con LOO', valor: diffAccuracy },
-          { label: 'Contiguidad', valor: 'Queen (8 vecinos)' },
+          { label: 'Precisión espacial', valor: `${(metricas.rf_accuracy_spatial * 100).toFixed(1)}%` },
+          { label: 'Diferencia', valor: diffAccuracy },
+          { label: 'Consideración', valor: 'Zonas vecinas excluidas' },
         ],
         interpretacion: robusto
-          ? `Diferencia de ${diffAccuracy} — el modelo es espacialmente robusto y no depende en exceso de la autocorrelacion vecinal.`
-          : `Diferencia de ${diffAccuracy} — existe posible sobreajuste espacial. El modelo se beneficia de la proximidad geografica mas de lo esperado.`,
+          ? `Diferencia de ${diffAccuracy} — el modelo es robusto y no depende excesivamente de la ubicación vecinal.`
+          : `Diferencia de ${diffAccuracy} — existe alguna dependencia de la proximidad geográfica.`,
       },
     },
     {
-      label: 'Diferencia LOO vs Espacial',
+      label: 'Robustez del modelo',
       value: diffAccuracy,
-      sub: robusto ? 'Modelo espacialmente robusto' : 'Posible sobreajuste espacial',
+      sub: robusto ? 'Confiable espacialmente' : 'Margen de mejora',
       type: robusto ? 'ok' : 'warn',
       modal: {
-        categoria: 'Diagnostico de robustez',
-        titulo: 'Brecha de validacion',
+        categoria: 'Diagnóstico de calidad',
+        titulo: 'Consistencia del análisis',
         valor: diffAccuracy,
         color: robusto ? 'var(--green-400)' : 'var(--amber-light)',
-        descripcion: `La diferencia entre el LOO tradicional (${(metricas.rf_accuracy_loo * 100).toFixed(1)}%) y el espacial (${(metricas.rf_accuracy_spatial * 100).toFixed(1)}%) revela cuanto depende el modelo de la estructura de vecindad.`,
+        descripcion: `La diferencia entre la validación tradicional (${(metricas.rf_accuracy_loo * 100).toFixed(1)}%) y la espacial (${(metricas.rf_accuracy_spatial * 100).toFixed(1)}%) revela qué tan consistente es el modelo en el espacio.`,
         detalles: [
-          { label: 'LOO Tradicional', valor: `${(metricas.rf_accuracy_loo * 100).toFixed(1)}%` },
-          { label: 'LOO Espacial', valor: `${(metricas.rf_accuracy_spatial * 100).toFixed(1)}%` },
-          { label: 'Umbral de robustez', valor: '5 pp (0.05)' },
+          { label: 'Validación general', valor: `${(metricas.rf_accuracy_loo * 100).toFixed(1)}%` },
+          { label: 'Validación espacial', valor: `${(metricas.rf_accuracy_spatial * 100).toFixed(1)}%` },
+          { label: 'Umbral aceptable', valor: '5 puntos (0.05)' },
         ],
         interpretacion: robusto
-          ? 'La brecha esta dentro del umbral aceptable. El modelo generaliza bien en el espacio.'
-          : 'La brecha supera el umbral. Considerar variables adicionales o regularizacion espacial.',
+          ? 'La diferencia está dentro del rango aceptable. El modelo es consistente en todo el territorio.'
+          : 'La diferencia sugiere margen de mejora. Se podrían considerar variables adicionales.',
       },
     },
     {
-      label: 'F1 Macro',
+      label: 'Balance entre clases',
       value: metricas.rf_f1_macro.toFixed(4),
-      sub: 'Promedio entre clases',
+      sub: 'Equilibrio alto/medio/bajo',
       type: 'ok',
       modal: {
-        categoria: 'Metrica de clasificacion',
-        titulo: 'F1 Score Macro',
+        categoria: 'Métrica de calidad',
+        titulo: 'Balance entre niveles de riesgo',
         valor: metricas.rf_f1_macro.toFixed(4),
         color: 'var(--green-400)',
-        descripcion: 'El F1 Macro promedia el F1 de cada clase de riesgo (Alto, Medio, Bajo) sin ponderar por frecuencia, penalizando el desempeno desigual entre clases.',
+        descripcion: 'Esta métrica mide qué tan bien el modelo identifica cada nivel de riesgo (alto, medio, bajo) sin favorecer uno sobre otro.',
         detalles: [
-          { label: 'F1 Macro', valor: metricas.rf_f1_macro.toFixed(4) },
-          { label: 'Clases', valor: 'Alto / Medio / Bajo' },
-          { label: 'Ponderacion', valor: 'Sin ponderar (macro)' },
+          { label: 'Balance', valor: metricas.rf_f1_macro.toFixed(4) },
+          { label: 'Niveles', valor: 'Alto / Medio / Bajo' },
+          { label: 'Tipo', valor: 'Sin favoritismo (macro)' },
         ],
-        interpretacion: `Un F1 macro de ${metricas.rf_f1_macro.toFixed(4)} indica ${metricas.rf_f1_macro > 0.75 ? 'buen balance entre precision y recall en todas las clases' : 'margen de mejora en la clasificacion de algunas clases de riesgo'}.`,
+        interpretacion: `Un balance de ${metricas.rf_f1_macro.toFixed(4)} indica ${metricas.rf_f1_macro > 0.75 ? 'buena identificación de todos los niveles de riesgo' : 'margen de mejora en algunos niveles de riesgo'}.`,
       },
     },
     {
-      label: 'Variable mas importante',
+      label: 'Factor de riesgo principal',
       value: metricas.variable_mas_importante.replace('TASA_', '').replace(/_/g, ' '),
-      sub: 'Gini — Random Forest',
+      sub: 'Mayor poder predictivo',
       type: 'accent',
       modal: {
-        categoria: 'Importancia de variables',
-        titulo: 'Variable con mayor poder predictivo',
+        categoria: 'Factor dominante',
+        titulo: 'Delito con mayor impacto en el riesgo',
         valor: metricas.variable_mas_importante.replace('TASA_', '').replace(/_/g, ' '),
         color: 'var(--green-300)',
-        descripcion: `Esta variable registra la mayor reduccion de impureza Gini acumulada en el Random Forest, siendo el predictor mas determinante para clasificar el nivel de riesgo de una localidad.`,
+        descripcion: `Este tipo de delito es el que más determina si una zona es clasificada como de riesgo alto, medio o bajo, concentrando el mayor poder de discriminación.`,
         detalles: [
-          { label: 'Variable', valor: metricas.variable_mas_importante.replace('TASA_', '').replace(/_/g, ' ') },
-          { label: 'Criterio', valor: 'Importancia Gini' },
-          { label: 'Modelo', valor: 'Random Forest' },
+          { label: 'Delito', valor: metricas.variable_mas_importante.replace('TASA_', '').replace(/_/g, ' ') },
+          { label: 'Criterio', valor: 'Poder predictivo' },
+          { label: 'Modelo', valor: 'Clasificación' },
         ],
-        interpretacion: 'La politica publica deberia priorizar la intervencion en esta dimension delictiva para tener el mayor impacto en la reduccion del riesgo percibido.',
+        interpretacion: 'Las políticas de seguridad deberían priorizar la intervención en este tipo de delito para tener el mayor impacto en la reducción del riesgo.',
       },
     },
   ];
 
   const hallazgos = [
     {
-      label: 'Clustering espacial',
-      value: `${metricas.kmeans_k} grupos de criminalidad`,
-      detail: `K-means identifico ${metricas.kmeans_k} perfiles diferenciados de localidades. El coeficiente de silueta de ${metricas.kmeans_silhouette.toFixed(4)} valida la separacion entre grupos.`,
+      label: 'Perfiles de zonas',
+      value: `${metricas.kmeans_k} tipos de zonas criminales`,
+      detail: `Se identificaron ${metricas.kmeans_k} perfiles diferenciados de zonas según su comportamiento criminal. Esto permite diseñar estrategias de seguridad específicas para cada tipo de zona.`,
       color: 'var(--green-400)',
-      tags: [`k = ${metricas.kmeans_k}`, `Silueta: ${metricas.kmeans_silhouette.toFixed(4)}`, 'Optimo'],
+      tags: [`k = ${metricas.kmeans_k}`, `Calidad: ${metricas.kmeans_silhouette.toFixed(4)}`, 'Patrones reales'],
       iconShape: '50%',
     },
     {
-      label: 'Precision del modelo',
-      value: `${(metricas.rf_accuracy_loo * 100).toFixed(1)}% LOO — ${(metricas.rf_accuracy_spatial * 100).toFixed(1)}% Espacial`,
-      detail: `El Random Forest clasifica correctamente el nivel de riesgo con una brecha de ${diffAccuracy} entre validacion tradicional y espacial, indicando ${robusto ? 'robustez' : 'sobreajuste leve'}.`,
+      label: 'Confiabilidad',
+      value: `${(metricas.rf_accuracy_loo * 100).toFixed(1)}% precisión`,
+      detail: `El modelo clasifica correctamente el nivel de riesgo con una brecha mínima (${diffAccuracy}) entre validación general y espacial, lo que indica ${robusto ? 'resultados confiables en todo el territorio' : 'margen de mejora en algunas zonas'}.`,
       color: robusto ? 'var(--blue-light)' : 'var(--amber-light)',
-      tags: ['Random Forest', 'LOO', 'Spatial CV'],
+      tags: ['Validado', 'Confiable', 'Datos reales'],
       iconShape: 4,
     },
     {
-      label: 'Factor de riesgo dominante',
+      label: 'Factor clave de riesgo',
       value: metricas.variable_mas_importante.replace('TASA_', '').replace(/_/g, ' '),
-      detail: `Esta variable lidera la importancia Gini en el modelo, lo que implica que concentra el mayor poder discriminador entre localidades de riesgo alto, medio y bajo.`,
+      detail: `Este delito es el que más determina si una zona es de riesgo alto, medio o bajo. Priorizar su prevención tendría el mayor impacto en la seguridad de Bogotá.`,
       color: 'var(--crimson-light)',
-      tags: ['Gini', 'Importancia', 'RF'],
+      tags: ['Mayor impacto', 'Prevención', 'Política pública'],
       iconShape: 2,
     },
   ];
@@ -529,8 +529,8 @@ export default function ClusteringML({ graficos, metricas }) {
       {modalData && <MetricaModal data={modalData} onClose={() => setModalData(null)} />}
 
       <SectionHeader
-        title="Clustering ML y Random Forest"
-        sub={`Modelos no supervisado y supervisado — ${metricas.n_localidades} localidades — Bogota D.C. ${metricas.anio}`}
+        title="Zonas de Riesgo Identificadas"
+        sub={`Análisis inteligente de patrones criminales — ${metricas.n_localidades} localidades — Bogotá D.C. ${metricas.anio}`}
       />
 
       {/* KPI Grid */}
@@ -555,7 +555,7 @@ export default function ClusteringML({ graficos, metricas }) {
 
         {/* Silueta K-means */}
         <div className="chart-box">
-          <h3>Coeficiente de silueta por k (K-means)</h3>
+          <h3>Calidad de la clasificación de zonas</h3>
           <ResponsiveContainer width="100%" height={260}>
             <LineChart data={siluetaData} margin={{ top: 8, right: 16, left: 0, bottom: 4 }}>
               <defs>
@@ -597,13 +597,13 @@ export default function ClusteringML({ graficos, metricas }) {
             </LineChart>
           </ResponsiveContainer>
           <p style={{ fontSize: '0.7rem', color: 'var(--text-muted)', marginTop: 8, fontFamily: 'DM Mono, monospace' }}>
-            Punto rojo = k optimo seleccionado ({metricas.kmeans_k} clusters)
+            Punto rojo = clasificación óptima seleccionada ({metricas.kmeans_k} tipos de zonas)
           </p>
         </div>
 
         {/* Importancia RF */}
         <div className="chart-box">
-          <h3>Importancia de variables — Random Forest</h3>
+          <h3>Factores que determinan el riesgo — Delitos más influyentes</h3>
           <ResponsiveContainer width="100%" height={260}>
             <BarChart
               data={importanciasData}
@@ -636,7 +636,7 @@ export default function ClusteringML({ graficos, metricas }) {
             </BarChart>
           </ResponsiveContainer>
           <p style={{ fontSize: '0.7rem', color: 'var(--text-muted)', marginTop: 8, fontFamily: 'DM Mono, monospace' }}>
-            Rojo = variable mas influyente en la clasificacion de riesgo
+            Rojo = delito más influyente en la clasificación de riesgo
           </p>
         </div>
       </div>
@@ -645,7 +645,7 @@ export default function ClusteringML({ graficos, metricas }) {
 
       {/* Moran por delito */}
       <div className="chart-box" style={{ marginBottom: '1.2rem' }}>
-        <h3>Autocorrelacion espacial por tipo de delito (I de Moran)</h3>
+        <h3>Concentración espacial por tipo de delito</h3>
         <ResponsiveContainer width="100%" height={240}>
           <BarChart data={moranData} margin={{ top: 8, right: 24, left: 0, bottom: 55 }}>
             <defs>
@@ -698,7 +698,7 @@ export default function ClusteringML({ graficos, metricas }) {
 
       {/* Comparacion LOO */}
       <div className="chart-box" style={{ marginBottom: '1.2rem' }}>
-        <h3>Comparacion de validacion cruzada — LOO vs Espacial</h3>
+        <h3>Comparación de validación — General vs Espacial</h3>
         <div style={{ display: 'flex', gap: '1.2rem', alignItems: 'flex-start' }}>
           <div style={{ flex: 1 }}>
             <ResponsiveContainer width="100%" height={200}>
@@ -745,7 +745,7 @@ export default function ClusteringML({ graficos, metricas }) {
               color: robusto ? 'var(--green-300)' : 'var(--amber-light)',
               textTransform: 'uppercase', letterSpacing: '0.12em', marginBottom: 10,
             }}>
-              Diagnostico
+              Resultado del análisis
             </div>
             <div style={{
               width: 32, height: 32, borderRadius: '50%',
@@ -761,12 +761,12 @@ export default function ClusteringML({ graficos, metricas }) {
               }} />
             </div>
             <div style={{ fontFamily: 'Syne, sans-serif', fontSize: '0.95rem', fontWeight: 700, color: 'var(--text)', marginBottom: 6 }}>
-              {robusto ? 'Espacialmente robusto' : 'Sobreajuste espacial'}
+              {robusto ? 'Análisis confiable' : 'Margen de mejora'}
             </div>
             <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', lineHeight: 1.6 }}>
               {robusto
-                ? `Brecha de ${diffAccuracy} — dentro del umbral de 0.05.`
-                : `Brecha de ${diffAccuracy} — supera el umbral de 0.05.`}
+                ? `Diferencia de ${diffAccuracy} — dentro del umbral aceptable.`
+                : `Diferencia de ${diffAccuracy} — supera el umbral de 0.05.`}
             </div>
           </div>
         </div>
@@ -780,7 +780,7 @@ export default function ClusteringML({ graficos, metricas }) {
         color: 'var(--green-300)', textTransform: 'uppercase',
         letterSpacing: '0.14em', marginBottom: '1rem', opacity: 0.8,
       }}>
-        Hallazgos clave del modelado
+        Hallazgos del análisis de zonas
       </div>
       <MLCarousel items={hallazgos} />
     </div>

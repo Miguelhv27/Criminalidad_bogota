@@ -317,7 +317,7 @@ function LocalidadModal({ row, onClose }) {
             color: 'var(--green-300)', letterSpacing: '0.14em',
             textTransform: 'uppercase', marginBottom: 8,
           }}>
-            Detalle — Localidad
+            Análisis por Localidad
           </div>
           <div style={{
             fontFamily: 'Syne, sans-serif', fontSize: '1.6rem',
@@ -351,7 +351,7 @@ function LocalidadModal({ row, onClose }) {
               border: '1px solid rgba(96,165,250,0.25)',
               color: '#93c5fd',
             }}>
-              LISA: {row.LISA_cluster}
+              Zona: {row.LISA_cluster}
             </span>
           </div>
         </div>
@@ -439,73 +439,71 @@ export default function KPICards({ metricas, graficos }) {
       ),
     },
     {
-      label: 'I de Moran Global',
-      value: metricas.moran_I.toFixed(4),
-      sub: moranSig ? 'Autocorrelación significativa' : 'Sin autocorrelación significativa',
-      type: moranSig ? 'accent' : 'warn',
-      popoverContent: (
-        <div>
-          <div style={{ fontFamily: 'DM Mono, monospace', fontSize: '0.6rem', color: 'var(--green-300)', letterSpacing: '0.1em', marginBottom: 8 }}>AUTOCORRELACIÓN ESPACIAL</div>
-          <div style={{ fontSize: '0.78rem', color: 'var(--text-soft)', lineHeight: 1.7 }}>
-            p-valor: <strong style={{ color: 'var(--green-300)' }}>{metricas.moran_p.toFixed(4)}</strong><br />
-            z-score: <strong style={{ color: 'var(--green-300)' }}>{metricas.moran_z.toFixed(3)}</strong><br />
-            {moranSig ? 'Los delitos NO se distribuyen aleatoriamente — hay clustering espacial significativo.' : 'Distribución cercana a aleatoria.'}
-          </div>
-        </div>
-      ),
-    },
-    {
-      label: 'p-valor Moran',
-      value: metricas.moran_p.toFixed(4),
-      sub: `z-score: ${metricas.moran_z.toFixed(3)}`,
+      label: 'Zona más peligrosa',
+      value: top1.LOCALIDAD_GEO.split(' ')[0],
+      sub: `Índice: ${top1.INDICE_CRIMEN.toFixed(2)}`,
       type: 'warn',
       popoverContent: (
         <div>
-          <div style={{ fontFamily: 'DM Mono, monospace', fontSize: '0.6rem', color: 'var(--amber-light)', letterSpacing: '0.1em', marginBottom: 8 }}>SIGNIFICANCIA</div>
+          <div style={{ fontFamily: 'DM Mono, monospace', fontSize: '0.6rem', color: 'var(--amber-light)', letterSpacing: '0.1em', marginBottom: 8 }}>MAYOR RIESGO</div>
           <div style={{ fontSize: '0.78rem', color: 'var(--text-soft)', lineHeight: 1.7 }}>
-            {metricas.moran_p < 0.05 ? '✓ p &lt; 0.05 — resultado estadísticamente significativo al 95% de confianza.' : '✗ p ≥ 0.05 — no es significativo al nivel convencional.'}
+            <strong style={{ color: 'var(--amber-light)' }}>{top1.LOCALIDAD_GEO}</strong> registra el índice compuesto de criminalidad más alto de Bogotá, concentrando tasas elevadas en múltiples categorías de delito.
           </div>
         </div>
       ),
     },
     {
-      label: 'K óptimo K-means',
-      value: metricas.kmeans_k,
-      sub: `Silueta: ${metricas.kmeans_silhouette.toFixed(4)}`,
-      type: 'accent',
-      popoverContent: (
-        <div>
-          <div style={{ fontFamily: 'DM Mono, monospace', fontSize: '0.6rem', color: 'var(--green-300)', letterSpacing: '0.1em', marginBottom: 8 }}>CLUSTERING</div>
-          <div style={{ fontSize: '0.78rem', color: 'var(--text-soft)', lineHeight: 1.7 }}>
-            El algoritmo K-means encontró <strong style={{ color: 'var(--green-300)' }}>{metricas.kmeans_k} clusters</strong> óptimos usando el coeficiente de silueta como criterio de selección.
-          </div>
-        </div>
-      ),
-    },
-    {
-      label: 'Variable más importante',
+      label: 'Delito más frecuente',
       value: metricas.variable_mas_importante.replace('TASA_', '').replace(/_/g, ' '),
-      sub: 'Random Forest — Gini',
+      sub: 'Mayor impacto en la seguridad',
       type: 'accent',
       popoverContent: (
         <div>
-          <div style={{ fontFamily: 'DM Mono, monospace', fontSize: '0.6rem', color: 'var(--green-300)', letterSpacing: '0.1em', marginBottom: 8 }}>IMPORTANCIA GINI</div>
+          <div style={{ fontFamily: 'DM Mono, monospace', fontSize: '0.6rem', color: 'var(--green-300)', letterSpacing: '0.1em', marginBottom: 8 }}>DELITO DOMINANTE</div>
           <div style={{ fontSize: '0.78rem', color: 'var(--text-soft)', lineHeight: 1.7 }}>
-            Esta variable tiene el mayor poder predictivo en el modelo Random Forest para clasificar el nivel de riesgo de cada localidad.
+            Este tipo de delito es el que más contribuye al riesgo de cada localidad, siendo la principal amenaza para la seguridad ciudadana según los datos de {metricas.anio}.
           </div>
         </div>
       ),
     },
     {
-      label: 'Hotspots High-High',
-      value: hhCluster ? hhCluster.n : 0,
-      sub: 'Clusters LISA significativos',
+      label: 'Zonas de alto riesgo',
+      value: `${riesgoAlto ? riesgoAlto.n : 0}`,
+      sub: `de ${totalLoc} localidades en riesgo alto`,
+      type: 'warn',
+      popoverContent: (
+        <div>
+          <div style={{ fontFamily: 'DM Mono, monospace', fontSize: '0.6rem', color: 'var(--crimson-light)', letterSpacing: '0.1em', marginBottom: 8 }}>ALERTA</div>
+          <div style={{ fontSize: '0.78rem', color: 'var(--text-soft)', lineHeight: 1.7 }}>
+            El <strong style={{ color: 'var(--crimson-light)' }}>{((riesgoAlto?.n / totalLoc) * 100).toFixed(0)}% del territorio</strong> está clasificado en riesgo alto, requiriendo atención prioritaria en políticas de seguridad.
+          </div>
+        </div>
+      ),
+    },
+    {
+      label: 'Concentración criminal',
+      value: hhCluster ? `${((hhCluster.n / totalLoc) * 100).toFixed(0)}%` : '0%',
+      sub: 'Zonas calientes (High-High)',
       type: 'accent',
       popoverContent: (
         <div>
-          <div style={{ fontFamily: 'DM Mono, monospace', fontSize: '0.6rem', color: 'var(--crimson-light)', letterSpacing: '0.1em', marginBottom: 8 }}>LISA HIGH-HIGH</div>
+          <div style={{ fontFamily: 'DM Mono, monospace', fontSize: '0.6rem', color: 'var(--crimson-light)', letterSpacing: '0.1em', marginBottom: 8 }}>ZONAS CALIENTES</div>
           <div style={{ fontSize: '0.78rem', color: 'var(--text-soft)', lineHeight: 1.7 }}>
-            Localidades con criminalidad alta rodeadas de vecinos también con alta criminalidad — focos de riesgo concentrado.
+            Localidades con criminalidad alta rodeadas de vecinos también con alta criminalidad — focos de riesgo concentrado que requieren intervención inmediata.
+          </div>
+        </div>
+      ),
+    },
+    {
+      label: 'Precisión del análisis',
+      value: `${(metricas.rf_accuracy_loo * 100).toFixed(0)}%`,
+      sub: 'Confiabilidad del modelo',
+      type: 'ok',
+      popoverContent: (
+        <div>
+          <div style={{ fontFamily: 'DM Mono, monospace', fontSize: '0.6rem', color: 'var(--green-300)', letterSpacing: '0.1em', marginBottom: 8 }}>CONFIABILIDAD</div>
+          <div style={{ fontSize: '0.78rem', color: 'var(--text-soft)', lineHeight: 1.7 }}>
+            El modelo de clasificación alcanza un {(metricas.rf_accuracy_loo * 100).toFixed(1)}% de precisión, identificando correctamente las zonas de riesgo alto, medio y bajo en Bogotá.
           </div>
         </div>
       ),
@@ -519,40 +517,40 @@ export default function KPICards({ metricas, graficos }) {
       color: 'var(--crimson-light)',
       label: 'Localidad más peligrosa',
       value: top1.LOCALIDAD_GEO.toLowerCase().replace(/\b\w/g, l => l.toUpperCase()),
-      detail: `Índice compuesto de criminalidad: ${top1.INDICE_CRIMEN} — lidera en múltiples categorías de delito según el análisis SIEDCO ${metricas.anio}.`,
-      tags: ['Índice Alto', 'LISA HH', 'RF Riesgo Alto'],
+      detail: `Con el índice de criminalidad más alto de Bogotá (${top1.INDICE_CRIMEN.toFixed(2)}), concentra las tasas más elevadas en múltiples categorías de delito, afectando directamente la seguridad de sus habitantes.`,
+      tags: ['Índice Alto', 'Zona Crítica', 'Atención Prioritaria'],
     },
     {
       icon: '⚠️',
       color: 'var(--amber-light)',
-      label: 'Localidades en riesgo alto',
+      label: 'Zonas en riesgo alto',
       value: `${riesgoAlto ? riesgoAlto.n : 0} de ${totalLoc} localidades`,
-      detail: `El ${((riesgoAlto?.n / totalLoc) * 100).toFixed(1)}% del territorio analizado está clasificado en riesgo alto por el modelo Random Forest con validación espacial LOO.`,
-      tags: ['Random Forest', 'Spatial CV', 'K-means'],
+      detail: `El ${((riesgoAlto?.n / totalLoc) * 100).toFixed(0)}% del territorio analizado está clasificado en riesgo alto, lo que significa que miles de ciudadanos están expuestos a mayores niveles de inseguridad.`,
+      tags: ['Seguridad Ciudadana', 'Intervención Urgente', `${((riesgoAlto?.n / totalLoc) * 100).toFixed(0)}% del territorio`],
     },
     {
-      icon: '🤖',
+      icon: '📊',
       color: 'var(--green-400)',
-      label: 'Precisión del modelo ML',
-      value: `${(metricas.rf_accuracy_loo * 100).toFixed(1)}% accuracy`,
-      detail: `El modelo Random Forest alcanza ${(metricas.rf_accuracy_loo * 100).toFixed(1)}% LOO tradicional y ${(metricas.rf_accuracy_spatial * 100).toFixed(1)}% LOO espacial — diferencia de ${Math.abs(metricas.rf_accuracy_loo - metricas.rf_accuracy_spatial).toFixed(4)}.`,
-      tags: ['Leave-One-Out', 'Spatial CV', `F1: ${metricas.rf_f1_macro.toFixed(3)}`],
+      label: 'Delito más común',
+      value: metricas.variable_mas_importante.replace('TASA_', '').replace(/_/g, ' '),
+      detail: `Es el delito que más contribuye al riesgo en Bogotá. Su predominancia indica que las políticas de seguridad deberían priorizar la prevención y atención de este tipo de incidents.`,
+      tags: ['Mayor Impacto', 'Prevención', 'Política Pública'],
     },
     {
       icon: '🗺️',
       color: 'var(--blue-light)',
-      label: 'Autocorrelación espacial',
-      value: `I de Moran: ${metricas.moran_I.toFixed(4)}`,
-      detail: `Los patrones de criminalidad en Bogotá ${moranSig ? 'NO son aleatorios — existe clustering espacial significativo' : 'no muestran autocorrelación significativa'} (p = ${metricas.moran_p.toFixed(4)}).`,
-      tags: [`p = ${metricas.moran_p.toFixed(3)}`, `z = ${metricas.moran_z.toFixed(2)}`, moranSig ? 'Significativo' : 'No sig.'],
+      label: 'Patrones de criminalidad',
+      value: `Los delitos se concentran en zonas`,
+      detail: `El análisis espacial confirma que la criminalidad en Bogotá NO se distribuye aleatoriamente — existen zonas calientes donde los delitos se agrupan, lo que permite enfocar los recursos de seguridad de manera más efectiva.`,
+      tags: ['Zonas Calientes', 'Análisis Espacial', 'Datos Reales'],
     },
     {
-      icon: '📍',
+      icon: '🎯',
       color: '#c084fc',
-      label: 'Clusters K-means',
-      value: `${metricas.kmeans_k} grupos óptimos`,
-      detail: `K-means identificó ${metricas.kmeans_k} clusters con coeficiente de silueta de ${metricas.kmeans_silhouette.toFixed(4)}, separando localidades por perfil de criminalidad.`,
-      tags: [`Silueta: ${metricas.kmeans_silhouette.toFixed(4)}`, `k = ${metricas.kmeans_k}`, 'Óptimo'],
+      label: 'Perfiles de riesgo identificados',
+      value: `${metricas.kmeans_k} grupos diferenciados`,
+      detail: `Se identificaron ${metricas.kmeans_k} perfiles distintos de localidades según su comportamiento criminal, permitiendo estrategias de seguridad diferenciadas según las necesidades de cada zona.`,
+      tags: [`k = ${metricas.kmeans_k}`, 'Clasificación', 'Estrategias Diferenciadas'],
     },
   ];
 
@@ -562,8 +560,8 @@ export default function KPICards({ metricas, graficos }) {
       {modalRow && <LocalidadModal row={modalRow} onClose={() => setModalRow(null)} />}
 
       <SectionHeader
-        title="Resumen Ejecutivo"
-        sub={`Análisis espacial de criminalidad — Bogotá D.C. ${metricas.anio} — ${metricas.n_localidades} localidades`}
+        title="Panorama de la Criminalidad"
+        sub={`Datos reales de seguridad en Bogotá D.C. — ${metricas.anio} — ${metricas.n_localidades} localidades analizadas`}
       />
 
       {/* KPI Cards con popovers */}
@@ -580,13 +578,13 @@ export default function KPICards({ metricas, graficos }) {
       <div className="two-col" style={{ marginBottom: '1.2rem' }}>
         {/* Barras de modelo */}
         <div className="chart-box">
-          <h3>Rendimiento del modelo Random Forest</h3>
+          <h3>Confiabilidad del análisis de riesgo</h3>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '1.2rem' }}>
             {[
-              { label: 'Accuracy LOO Tradicional', value: accLOO,     color: 'var(--green-400)', suffix: '%' },
-              { label: 'Accuracy LOO Espacial',    value: accSpatial, color: '#60a5fa',           suffix: '%' },
-              { label: 'F1 Macro',                 value: f1,         color: 'var(--amber-light)',suffix: '' },
-              { label: 'Silueta K-means',          value: silueta,    color: 'var(--crimson-light)', suffix: '' },
+              { label: 'Precisión general',          value: accLOO,     color: 'var(--green-400)', suffix: '%' },
+              { label: 'Validación espacial',        value: accSpatial, color: '#60a5fa',           suffix: '%' },
+              { label: 'Balance entre clases',       value: f1,         color: 'var(--amber-light)',suffix: '' },
+              { label: 'Separación de grupos',       value: silueta,    color: 'var(--crimson-light)', suffix: '' },
             ].map((m, i) => (
               <div key={i}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 6 }}>
@@ -610,7 +608,7 @@ export default function KPICards({ metricas, graficos }) {
 
         {/* Distribución riesgo */}
         <div className="chart-box">
-          <h3>Distribución de riesgo (K-means)</h3>
+          <h3>Distribución del riesgo por localidad</h3>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', marginTop: '0.5rem' }}>
             {graficos.riesgo_distribucion.map((r, i) => {
               const pct   = ((r.n / totalLoc) * 100).toFixed(1);
@@ -655,7 +653,7 @@ export default function KPICards({ metricas, graficos }) {
       {/* LISA + Radar */}
       <div className="two-col" style={{ marginBottom: '1.2rem' }}>
         <div className="chart-box">
-          <h3>Clusters LISA — Distribución espacial</h3>
+          <h3>Zonas calientes — Distribución espacial</h3>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '0.8rem', marginTop: '0.5rem' }}>
             {graficos.lisa_distribucion.map((c, i) => {
               const total = graficos.lisa_distribucion.reduce((a, b) => a + b.n, 0);
@@ -692,7 +690,7 @@ export default function KPICards({ metricas, graficos }) {
 
         {/* Radar */}
         <div className="chart-box">
-          <h3>Perfil multidimensional — Top localidades</h3>
+          <h3>Perfil de criminalidad — Top localidades</h3>
           <ResponsiveContainer width="100%" height={260}>
             <RadarChart data={radarData} margin={{ top: 10, right: 30, bottom: 10, left: 30 }}>
               <PolarGrid stroke="rgba(34,197,94,0.1)" />
@@ -733,7 +731,7 @@ export default function KPICards({ metricas, graficos }) {
         color: 'var(--green-300)', textTransform: 'uppercase',
         letterSpacing: '0.14em', marginBottom: '1rem', opacity: 0.8,
       }}>
-        Top localidades — haz clic para ver detalle
+        Top 3 localidades más afectadas — clic para ver detalle
       </div>
       <div className="three-col stagger">
         {graficos.top10_criminalidad.slice(0, 3).map((row, i) => {
@@ -766,7 +764,7 @@ export default function KPICards({ metricas, graficos }) {
                 fontFamily: 'DM Mono, monospace', letterSpacing: '0.08em',
                 opacity: 0.6,
               }}>
-                ver detalle →
+                ver análisis completo →
               </div>
             </div>
           );

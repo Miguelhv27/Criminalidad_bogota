@@ -1,9 +1,9 @@
 import { useEffect, useRef, useState } from 'react';
 
 const CAPAS = [
-  { id: 'indice',  label: 'Indice de Criminalidad' },
-  { id: 'lisa',    label: 'Clusters LISA' },
-  { id: 'riesgo',  label: 'Riesgo Random Forest' },
+  { id: 'indice',  label: 'Nivel de Peligrosidad' },
+  { id: 'lisa',    label: 'Zonas Calientes' },
+  { id: 'riesgo',  label: 'Predicción de Riesgo' },
 ];
 
 const COLORES_LISA = {
@@ -103,7 +103,7 @@ function LocalidadModal({ feature, onClose }) {
             color: 'var(--green-300)', letterSpacing: '0.14em',
             textTransform: 'uppercase', marginBottom: 8,
           }}>
-            Localidad — Bogota D.C.
+            Perfil de Seguridad
           </div>
           <div style={{
             fontFamily: 'Syne, sans-serif', fontSize: '1.65rem',
@@ -136,7 +136,7 @@ function LocalidadModal({ feature, onClose }) {
               background: `${lisaColor}18`, border: `1px solid ${lisaColor}33`,
               color: lisaColor,
             }}>
-              LISA: {p.LISA_cluster}
+              Zona: {p.LISA_cluster}
             </span>
           </div>
         </div>
@@ -351,9 +351,9 @@ export default function MapaInteractivo({ geojson }) {
       )}
 
       <div style={{ marginBottom: '2rem' }}>
-        <p className="section-title gradient-text">Mapa Interactivo — Bogota D.C.</p>
+        <p className="section-title gradient-text">Mapa del Crimen — Bogotá D.C.</p>
         <p className="section-subtitle">
-          Visualizacion geografica de criminalidad por localidad — haz clic en cualquier zona para ver el detalle completo
+          Visualización geográfica de la criminalidad por localidad — selecciona una capa para ver diferentes perspectivas de seguridad
         </p>
       </div>
 
@@ -440,7 +440,7 @@ export default function MapaInteractivo({ geojson }) {
               fontSize: '0.62rem', color: 'var(--green-300)',
               fontFamily: 'DM Mono, monospace', letterSpacing: '0.08em',
             }}>
-              clic para ver detalle completo
+              clic para ver análisis completo
             </div>
           </div>
         )}
@@ -488,7 +488,7 @@ export default function MapaInteractivo({ geojson }) {
       </div>
 
       <p style={{ fontSize: '0.72rem', color: 'var(--text-muted)', marginTop: 12, fontFamily: 'DM Mono, monospace' }}>
-        Cursor sobre localidad para vista rapida — clic para panel completo con tasas y clasificacion
+        Pasa el cursor sobre una localidad para vista rápida — clic para ver el perfil completo con tasas y clasificación
       </p>
     </div>
   );

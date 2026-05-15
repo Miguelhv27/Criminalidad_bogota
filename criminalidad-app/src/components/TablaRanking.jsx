@@ -115,7 +115,7 @@ function LocalidadModal({ row, maximos, onClose }) {
             color: 'var(--green-300)', letterSpacing: '0.14em',
             textTransform: 'uppercase', marginBottom: 8,
           }}>
-            Perfil de criminalidad
+            Perfil de Criminalidad
           </div>
           <div style={{
             fontFamily: 'Syne, sans-serif', fontSize: '1.6rem',
@@ -186,7 +186,7 @@ function LocalidadModal({ row, maximos, onClose }) {
           color: 'var(--green-300)', textTransform: 'uppercase',
           letterSpacing: '0.12em', marginBottom: '0.8rem', opacity: 0.8,
         }}>
-          Comparacion con el maximo del ranking
+          Comparación con la localidad más afectada
         </div>
         <div style={{
           background: `${delitoActivo.color}0a`,
@@ -370,7 +370,7 @@ function TopCard({ row, rank, maximos, onClick }) {
         {row.INDICE_CRIMEN?.toFixed(3)}
       </div>
       <div style={{ fontSize: '0.65rem', color: 'var(--text-muted)', fontFamily: 'DM Mono, monospace', marginBottom: 12 }}>
-        indice compuesto de criminalidad
+        nivel compuesto de criminalidad
       </div>
 
       {/* Delito dominante */}
@@ -400,7 +400,7 @@ function TopCard({ row, rank, maximos, onClick }) {
         fontFamily: 'DM Mono, monospace', letterSpacing: '0.08em',
         opacity: 0.55,
       }}>
-        ver detalle →
+        ver análisis →
       </div>
     </div>
   );
@@ -465,7 +465,7 @@ export default function TablaRanking({ graficos }) {
       <div style={{ marginBottom: '2rem' }}>
         <p className="section-title gradient-text">Ranking de Localidades</p>
         <p className="section-subtitle">
-          Clasificacion por indice compuesto de criminalidad — haz clic en cualquier fila para ver el perfil completo
+          Clasificación por nivel de criminalidad — clic en cualquier fila para ver el perfil completo de seguridad
         </p>
       </div>
 
@@ -558,7 +558,7 @@ export default function TablaRanking({ graficos }) {
 
       {/* Tabla */}
       <div className="chart-box" style={{ padding: '1.2rem' }}>
-        <h3>Ranking por indice de criminalidad — tasas por 100.000 hab. — clic en fila para detalle</h3>
+        <h3>Ranking por nivel de criminalidad — tasas por 100.000 hab. — clic en fila para ver análisis</h3>
         <div className="tabla-wrap">
           <table>
             <thead>

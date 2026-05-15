@@ -17,11 +17,11 @@ const IcoClustering = () => <svg width="14" height="14" viewBox="0 0 24 24" fill
 const IcoRanking    = () => <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>;
 
 const TABS = [
-  { id: 'resumen',    label: 'Resumen',      Icon: IcoResumen },
-  { id: 'mapa',       label: 'Mapa',         Icon: IcoMapa },
-  { id: 'delitos',    label: 'Delitos',      Icon: IcoDelitos },
-  { id: 'clustering', label: 'Clustering ML',Icon: IcoClustering },
-  { id: 'ranking',    label: 'Ranking',      Icon: IcoRanking },
+  { id: 'resumen',    label: 'Panorama',      Icon: IcoResumen },
+  { id: 'mapa',       label: 'Mapa',          Icon: IcoMapa },
+  { id: 'delitos',    label: 'Delitos',       Icon: IcoDelitos },
+  { id: 'clustering', label: 'Zonas Riesgo',  Icon: IcoClustering },
+  { id: 'ranking',    label: 'Ranking',       Icon: IcoRanking },
 ];
 
 /* ── Count-up hook ── */
@@ -43,18 +43,23 @@ function useCountUp(target, duration = 1800, decimals = 0, started = false) {
 }
 
 /* ── Hero stats ── */
-function HeroStats({ metricas }) {
+function HeroStats({ metricas, graficos }) {
+  const totalDelitos = graficos?.top10_criminalidad?.reduce((sum, loc) =>
+    sum + (loc.TASA_HURTO_A_PERSONAS || 0) + (loc.TASA_HURTO_A_COMERCIO || 0) +
+         (loc.TASA_LESIONES_PERSONALES || 0) + (loc.TASA_VIOLENCIA_INTRAFAMILIAR || 0) +
+         (loc.TASA_HOMICIDIO || 0), 0) || 0;
+
+  const topLoc = graficos?.top10_criminalidad?.[0]?.LOCALIDAD_GEO?.split(' ')[0] || '';
+  const hurtoRate = graficos?.top10_criminalidad?.[0]?.TASA_HURTO_A_PERSONAS?.toFixed(0) || '0';
   const localidades = useCountUp(metricas.n_localidades, 1200, 0, true);
-  const accuracy    = useCountUp(metricas.rf_accuracy_loo * 100, 1600, 1, true);
-  const moran       = useCountUp(Math.abs(metricas.moran_I), 1400, 4, true);
 
   return (
     <div className="hero-stats">
       {[
-        { value: localidades,     label: 'Localidades' },
-        { value: `${accuracy}%`,  label: 'Accuracy RF' },
-        { value: moran,           label: 'I de Morán' },
-        { value: metricas.anio,   label: 'Año analizado' },
+        { value: localidades,              label: 'Localidades' },
+        { value: `${hurtoRate}/100k`,       label: 'Tasa hurtos (top)' },
+        { value: topLoc,                    label: 'Zona más afectada' },
+        { value: metricas.anio,             label: 'Año analizado' },
       ].map(({ value, label }) => (
         <div className="hero-stat" key={label}>
           <div className="hero-stat-value">{value}</div>
@@ -66,7 +71,7 @@ function HeroStats({ metricas }) {
 }
 
 /* ── Hero section ── */
-function Hero({ metricas, onEnter }) {
+function Hero({ metricas, graficos, onEnter }) {
   const particlesInit = useCallback(async (engine) => {
     await loadSlim(engine);
   }, []);
@@ -151,7 +156,7 @@ function Hero({ metricas, onEnter }) {
       <div className="hero-content">
         <div className="hero-eyebrow">
           <span className="hero-eyebrow-dot" />
-          Sistema de Análisis Espacial — SIEDCO Bogotá
+          Análisis de Seguridad Ciudadana — Bogotá D.C.
         </div>
 
         <h1 className="hero-title">
@@ -160,14 +165,15 @@ function Hero({ metricas, onEnter }) {
         </h1>
 
         <p className="hero-desc">
-          Análisis espacial con Moran I, clustering ML y Random Forest
-          para identificar y clasificar patrones de criminalidad por localidad.
+          Cada día, miles de bogotanos son víctimas de hurtos, violencia y delitos que afectan
+          su vida cotidiana. Este análisis identifica las zonas de mayor riesgo y los patrones
+          de criminalidad para apoyar la toma de decisiones.
         </p>
 
-        <HeroStats metricas={metricas} />
+        <HeroStats metricas={metricas} graficos={graficos} />
 
         <button className="hero-cta" onClick={onEnter}>
-          Ver análisis completo
+          Explorar los datos
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
             stroke="currentColor" strokeWidth="2.5"
             strokeLinecap="round" strokeLinejoin="round">
@@ -208,24 +214,24 @@ export default function App() {
   const { metricas, graficos, geojson } = data;
 
   if (!showDashboard) {
-    return <Hero metricas={metricas} onEnter={() => setShowDashboard(true)} />;
+    return <Hero metricas={metricas} graficos={graficos} onEnter={() => setShowDashboard(true)} />;
   }
 
   return (
     <div className="app animate-fade">
       <header className="header">
         <div className="header-brand">
-          <div className="header-logo">BC</div>
+          <div className="header-logo">BS</div>
           <div>
-            <h1>Bogotá Criminalidad</h1>
-            <span>Análisis Espacial · SIEDCO {metricas.anio}</span>
+            <h1>Bogotá Segura</h1>
+            <span>Análisis de Criminalidad · {metricas.anio}</span>
           </div>
         </div>
         <div className="header-right">
-          <span className="header-pill">Año {metricas.anio}</span>
+          <span className="header-pill">{metricas.n_localidades} localidades</span>
           <div className="header-status">
             <div className="header-dot" />
-            En línea
+            Datos actualizados
           </div>
         </div>
       </header>

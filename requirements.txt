@@ -1,0 +1,12 @@
+numpy
+pandas
+matplotlib
+scipy
+scikit-learn
+geopandas
+libpysal
+esda
+splot
+folium
+branca
+mapclassify
