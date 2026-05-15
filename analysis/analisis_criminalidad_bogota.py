@@ -42,6 +42,7 @@ from splot.esda import moran_scatterplot
 
 # Machine Learning
 from sklearn.preprocessing   import StandardScaler, MinMaxScaler, LabelEncoder
+from sklearn.decomposition   import PCA
 from sklearn.cluster         import KMeans, DBSCAN, AgglomerativeClustering
 from sklearn.ensemble        import RandomForestClassifier
 from sklearn.model_selection import LeaveOneOut, cross_validate
@@ -233,10 +234,89 @@ gdf['centroid_x'] = gdf_proj.geometry.centroid.x
 gdf['centroid_y'] = gdf_proj.geometry.centroid.y
 gdf['area_km2']   = (gdf_proj.geometry.area / 1e6).round(2)
 
-# Índice compuesto de criminalidad (MinMax normalizado, suma de tasas)
-scaler               = MinMaxScaler()
-tasas_vals           = gdf[TASAS].fillna(0).values
-gdf['INDICE_CRIMEN'] = scaler.fit_transform(tasas_vals).sum(axis=1).round(4)
+def calcular_indice_pca(df, feature_cols, missing_threshold=0.5):
+    """
+    Calcula un índice compuesto usando PCA (primer componente principal).
+
+    Pipeline:
+    1. Validación: reemplaza inf con NaN. Si una fila supera
+       missing_threshold de valores faltantes, se descarta.
+       El resto se imputa con la mediana.
+    2. Estandarización Z-score (StandardScaler) — obligatorio para PCA.
+    3. PCA: extrae PC1.
+    4. Umbral de varianza: advierte si PC1 < 50%.
+    5. Corrección de direccionalidad: si la suma de cargas (loadings)
+       es negativa, se invierte PC1 para que a mayor crimen → mayor índice.
+       Esto asegura que el índice sea intuitivo: valores más altos
+       representan mayor criminalidad.
+    6. Normalización MinMax [0, 100].
+
+    Parameters
+    ----------
+    df : pd.DataFrame
+    feature_cols : list[str]
+        Columnas numéricas a usar como features para PCA.
+    missing_threshold : float (default 0.5)
+        Fracción máxima de features faltantes por fila antes de descartar.
+
+    Returns
+    -------
+    pd.DataFrame con nueva columna 'INDICE_CRIMEN' en escala [0, 100].
+    """
+    n_features = len(feature_cols)
+    X = df[feature_cols].copy()
+
+    X = X.replace([np.inf, -np.inf], np.nan)
+
+    missing_frac = X.isna().sum(axis=1) / n_features
+    drop_mask = missing_frac > missing_threshold
+    if drop_mask.any():
+        print(f'⚠️  {drop_mask.sum()} fila(s) descartada(s) '
+              f'(missing > {missing_threshold*100:.0f}% de features)')
+        X = X.loc[~drop_mask]
+        df = df.loc[~drop_mask].copy()
+
+    before_impute = X.isna().sum().sum()
+    X = X.fillna(X.median())
+    if before_impute > 0:
+        print(f'🔧 {before_impute} NaN(s) imputado(s) con mediana')
+
+    scaler_pca = StandardScaler()
+    X_scaled = scaler_pca.fit_transform(X)
+
+    pca = PCA(n_components=1)
+    pc1 = pca.fit_transform(X_scaled).flatten()
+
+    var_exp = pca.explained_variance_ratio_[0]
+    print(f'📊 PCA — Varianza explicada por PC1: {var_exp:.4f} '
+          f'({var_exp*100:.2f}%)')
+
+    if var_exp < 0.5:
+        print(f'⚠️  ADVERTENCIA: PC1 solo explica {var_exp*100:.2f}% '
+              f'de la varianza total (< 50%). '
+              f'El índice unidimensional puede no representar '
+              f'adecuadamente los datos subyacentes.')
+
+    loadings = pca.components_[0]
+    if np.sum(loadings) < 0:
+        pc1 = -pc1
+        loadings = -loadings
+        print('   🔄 PC1 invertido por direccionalidad: '
+              'las cargas eran mayoritariamente negativas.')
+
+    print('   Cargas (loadings) de PC1:')
+    for col, loading in zip(feature_cols, loadings):
+        print(f'     {col:.<40} {loading:+.4f}')
+
+    pc1_2d = pc1.reshape(-1, 1)
+    minmax = MinMaxScaler(feature_range=(0, 100))
+    pc1_norm = minmax.fit_transform(pc1_2d).flatten()
+
+    df['INDICE_CRIMEN'] = pc1_norm.round(4)
+    return df
+
+# ── Calcular índice PCA ───────────────────────────────────────────────────────
+gdf = calcular_indice_pca(gdf, TASAS)
 
 print(f'\n✅ GeoDataFrame final: {len(gdf)} localidades')
 print(f'   Sin datos: {gdf[gdf[TASAS[0]]==0]["LOCALIDAD_GEO"].tolist()}')
