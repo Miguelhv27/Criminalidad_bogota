@@ -96,7 +96,7 @@ df['HECHO']    = df['HECHO'].str.upper().str.strip()
 df['CANTIDAD'] = pd.to_numeric(df['CANTIDAD'], errors='coerce').fillna(1)
 
 DELITOS_INTERES = [
-    'HOMICIDIO',
+    'HOMICIDIOS',
     'HURTO A PERSONAS',
     'HURTO A COMERCIO',
     'LESIONES PERSONALES',
@@ -222,6 +222,10 @@ gdf = gdf_loca.merge(
 for col in DELITOS_INTERES + TASAS + ['POBLACION']:
     if col in gdf.columns:
         gdf[col] = gdf[col].fillna(0)
+
+# Excluir Sumapaz: localidad rural sin datos poblacionales confiables
+# ni representatividad criminal urbana. Sesga normalización y clustering.
+gdf = gdf[gdf['LOCALIDAD_GEO'] != 'SUMAPAZ'].copy()
 
 # Centroides y área
 gdf_proj          = gdf.to_crs(epsg=3116)
